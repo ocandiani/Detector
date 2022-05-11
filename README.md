@@ -1,5 +1,8 @@
 # README
 
+Código do meu trabalho de conclusão de curso. Transfer learning do imagenet para o conjunto de dados ZJU-Leaper 
+http://www.qaas.zju.edu.cn/zju-leaper/
+
 Código de um detector que utiliza o backbone da RetinanetR101FPN3x
 
 Experimento realizado em um container local utilizando a dockerfile aqui disponível.
