@@ -29,18 +29,18 @@ if __name__ == '__main__':
     # Setup and train
     cfg = get_cfg()
     cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/retinanet_R_50_FPN_3x.yaml"))
-    #cfg.DATASETS.TRAIN = ('taco_train',)
-    #cfg.DATASETS.TEST = ('taco_val',)
     cfg.OUTPUT_DIR = '/src/models/retinanet.yaml'
     cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final.pth")
     cfg.MODEL.RETINANET.NUM_CLASSES = 7
 
-    #cfg.MODEL.RETINANET.TOPK_CANDIDATES_TEST = 1000
+    #defining non-max suppression threshold and minimun score threshold
     cfg.MODEL.RETINANET.NMS_THRESH_TEST = 0.25
     cfg.MODEL.RETINANET.SCORE_THRESH_TEST = 0.7
 
+    #creating the predictor
     predictor = DefaultPredictor(cfg)
     
+    #creating path for predictions
     if os.path.exists(os.path.join( cfg.OUTPUT_DIR, 'test_samples' )):
         filenames = glob.glob(os.path.join( cfg.OUTPUT_DIR, 'test_samples', '*' ))
         for path in filenames:
@@ -48,22 +48,13 @@ if __name__ == '__main__':
     else:
         os.mkdir( os.path.join( cfg.OUTPUT_DIR, 'test_samples' ) )
 
-    # Make inferences and draw images
+    #making inferences and drawing images
     predictor = DefaultPredictor(cfg)
     val_metadata = MetadataCatalog.get('val')
     val_data = DatasetCatalog.get('val')
 
-        #create dataset
-    # for i, d in enumerate(val_data):
-    #     img = cv2.imread(d['file_name'])
-    #     outputs = predictor(img)
-    #     print(outputs)
-    #     print(outputs['instances'].pred_boxes.tensor)
-    #     tensor = outputs['instances'].pred_boxes.tensor.tolist()
-    #     list.append((d['file_name'], tensor))
-
-
-    list = []
+    #making predctions for all validation data
+    pred_list = []
 
     for img_name in os.listdir('./test_imgs'):
         img = cv2.imread(img_name)
@@ -71,11 +62,13 @@ if __name__ == '__main__':
         print(outputs)
         print(outputs['instances'].pred_boxes.tensor)
         tensor = outputs['instances'].pred_boxes.tensor.tolist()
-        list.append((img_name, tensor))
+        pred_list.append((img_name, tensor))
 
-
+    #saving predictions to a json file
     with open('/src/test_predicts.json','w') as f:
-        json.dump(list, f)
+        json.dump(pred_list, f)
+
+    #printing some detection examples
     i=0
     for img_name in os.listdir('./test_imgs'):
         i = i+1
